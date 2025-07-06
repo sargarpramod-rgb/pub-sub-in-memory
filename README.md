@@ -11,7 +11,7 @@ Producer ➡️ MessageStore ➡️ MessagePoller ➡️ MessagePublisher ➡️
 ```
 
 🧭 Class Diagram
-[!Class Diagram](https://github.com/sargarpramod-rgb/pub-sub-in-memory/blob/a62f4dfd68868faa18cad2a85bc1be92fbc2b3d1/src/resources/InMemorySubscriberArchitecture.png)
+![Class Diagram](https://github.com/sargarpramod-rgb/pub-sub-in-memory/blob/a62f4dfd68868faa18cad2a85bc1be92fbc2b3d1/src/resources/InMemorySubscriberArchitecture.png)
 
 ### 🔸 MessageProducer
 
