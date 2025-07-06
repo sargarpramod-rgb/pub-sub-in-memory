@@ -10,6 +10,9 @@ An in-memory publish-subscribe architecture built in Java to simulate how messag
 Producer ➡️ MessageStore ➡️ MessagePoller ➡️ MessagePublisher ➡️ Subscribers
 ```
 
+🧭 Class Diagram
+[!Class Diagram](https://github.com/sargarpramod-rgb/pub-sub-in-memory/blob/5d7b85c0740dd369129acee1b4c3852f824de1eb/src/resources/InMemorySubscriberArchitecture.png)
+
 ### 🔸 MessageProducer
 
 * Responsible for generating and pushing messages to the `MessageStore`.
