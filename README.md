@@ -1,64 +1,116 @@
-# pub-sub-in-memory
+# 📨 Pub-Sub In-Memory System
 
-Current Architecture:
+An in-memory publish-subscribe architecture built in Java to simulate how messages are produced, stored, and delivered to subscribers via polling and publishing mechanisms.
 
-MessageProducer --> Puts the messages in the messageStore.
-MessageStore    -->
-       It is Singleton
-       It has Map of the topic to linkedBlockingQueue
+---
 
-       Operations:
+## 📐 Architecture Overview
 
-       addMessage : Producer puts the message to Message store
-       ReadAllMessages : Reads the message from LinkedBlockingQueue given topic.
+```text
+Producer ➡️ MessageStore ➡️ MessagePoller ➡️ MessagePublisher ➡️ Subscribers
+```
 
-MessagePoller -->
+### 🔸 MessageProducer
 
-    Different messagePoller per topic (Swim-laning)
-    Runs continuously, waits till the message arrives in LinkedBlockingQueue
-      --> Understand how wait works.
+* Responsible for generating and pushing messages to the `MessageStore`.
 
-    As soon as message arrives, it's pushed to the Publisher.
+### 🔸 MessageStore
 
-MessagePublisher -->
+* Implemented as a **Singleton**.
+* Internally maintains a `Map<Topic, LinkedBlockingQueue<Message>>`.
 
-   Takes the messages and publishes the message to the subscriber of the topic uses the topicRegistry.
+#### Operations:
 
-TopicRegistry  -->
-   It is Singleton
-   It has Map of the topic to Subscribers
+* `addMessage(topic, message)` – Adds a message to the queue for the given topic.
+* `readAllMessages(topic)` – Reads all available messages from the queue.
 
-   addSubscriber    --> Operation called by Subscriber to subscribe to the topic
-   removeSubscriber --> Operation called by Subscriber to unsubscribe from the topic
+### 🔸 MessagePoller
 
-Subscriber -->
+* One poller per topic (topic swim-laning).
+* Continuously monitors the message queue for a topic.
+* Waits until a new message arrives, then pushes it to the `MessagePublisher`.
 
-   OnMessage method to read the message from the topic.
+> 🔍 Investigate Java's `wait()` and queue blocking mechanisms for efficient waiting.
 
-Improvements:
+### 🔸 MessagePublisher
 
-a) Producer generates large number of messages (Just Random messages for now)
-b) Apart from Singleton design pattern, which other design pattern can be used? (check Observer pattern once)
-c) Subscriber being online/offline, in case any subscriber is offline while publishing the message add the message
-   to the retry queue (read from main queue and add it to the retry queue)
-d) RetryProcessor retries to publish the message to the Subscriber N number of times, after which moves the message to
-   FailedQueue.
+* Publishes incoming messages to all registered subscribers of the topic.
+* Uses the `TopicRegistry` for resolving subscribers.
 
-   --> retries after every 10 seconds, for maximum of 15 attempts.
+### 🔸 TopicRegistry
 
-e) Subscriber which can be made online/offline using in memory database flag or randmoly after few minutes.
-   --> for now, let's do hardcoding of this data.
-       subscriber 1 --> Goes offline after 20 seconds, stays offline for 1 minute and comes back again
-                        and hence should receive all the messages.
-       subscriber 2 --> Remains offline forever.
-       subscriber 3 --> Remains online forever.
+* Singleton class that maintains `Map<Topic, List<Subscriber>>`.
 
-f) Rate limiting feature implementation (using some library)
+#### Operations:
 
-    --> explore how subscriber can stop consuming the messages once it reaches the limit.
-g) Currently, as soon as messages comes in the LinkedBlockingQueue it is published, need to do bulk
-   read and publish
+* `addSubscriber(topic, subscriber)`
+* `removeSubscriber(topic, subscriber)`
 
-   --> explore different API's of the LinkedBlockingQueue
-h) Can I use any Java generics in this implementation?
+### 🔸 Subscriber
+
+* Implements an `onMessage(Message)` method to receive and process messages.
+
+---
+
+## 🚀 Planned Enhancements
+
+### ✅ High-Volume Message Generation
+
+* Simulate a high-throughput producer that continuously generates random messages.
+
+### ✅ Design Pattern Exploration
+
+* Investigate alternate patterns, e.g., **Observer Pattern**, in addition to Singleton.
+
+### ✅ Offline Subscriber Handling & Retry Queue
+
+* If a subscriber is offline when a message is published:
+
+  * Message is added to a **RetryQueue**.
+  * A **RetryProcessor** attempts delivery every 10 seconds.
+  * After **15 failed attempts**, the message is moved to a **FailedQueue**.
+
+### ✅ Subscriber Online/Offline Simulation
+
+* Simulate dynamic availability:
+
+  * `Subscriber 1`: Offline after 20s, stays offline for 1 min, then comes back online.
+  * `Subscriber 2`: Permanently offline.
+  * `Subscriber 3`: Always online.
+
+> For now, use hardcoded values or flags (optionally stored in-memory).
+
+### ✅ Rate Limiting
+
+* Implement per-subscriber **rate limits** using a library like [Bucket4j](https://github.com/vladimir-bukhtoyarov/bucket4j).
+* Subscribers should **pause message consumption** upon exceeding their rate limit.
+
+### ✅ Bulk Read and Batch Publishing
+
+* Instead of immediate push on message arrival, implement **batch-based publishing**.
+* Explore advanced APIs of `LinkedBlockingQueue`, such as `drainTo()`.
+
+### ✅ Java Generics
+
+* Refactor key components (e.g., `MessageStore`, `Publisher`) to support generics for type-safe message handling.
+
+---
+
+## 📦 Tech Stack
+
+* Java (Concurrency utilities: `LinkedBlockingQueue`, `Executors`)
+* In-memory data structures (maps, queues)
+* Design Patterns: Singleton, Observer (planned)
+* Optional: Rate limiting libraries
+
+---
+
+## 📌 TODO List
+
+* [ ] Add unit tests for core components
+* [ ] Logging framework integration
+* [ ] Performance benchmark (for batch vs. real-time publishing)
+* [ ] Explore integration with Kafka for persistent queues (future scope)
+
+---
 
