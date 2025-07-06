@@ -1,0 +1,24 @@
+1. Observer Pattern
+The Pub/Sub model itself is an example of the Observer pattern, where subscribers (observers) register
+with a publisher (subject) to receive updates when events occur.
+TopicRegistry and InMemoryMessagePublisher can be seen as central components facilitating this pattern.
+Refactoring your design to more explicitly follow the Observer pattern principles can make it clearer
+and more extensible.
+
+2. Factory Method Pattern
+If you need flexibility in creating publishers, subscribers, or topics dynamically, you can implement
+a Factory Method to encapsulate the instantiation logic.
+For instance, a MessageComponentFactory could manage the creation of publishers, subscribers,
+or other related components.
+
+3. Strategy Pattern
+If different message delivery strategies (e.g., round-robin, priority-based, or broadcast) are required,
+the Strategy pattern could be used.
+A DeliveryStrategy interface could define different message delivery mechanisms,
+and the InMemoryMessagePublisher could delegate the message delivery logic to a strategy.
+
+4. Builder Pattern
+To manage the construction of complex objects like InMemoryMessagePublisher or InMemorySubscriber
+with optional parameters, the Builder pattern can help.
+This pattern simplifies the creation of objects with many configuration options and ensures
+clarity in the instantiation.
